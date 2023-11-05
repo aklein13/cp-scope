@@ -1,0 +1,20 @@
+{
+  "name": "cp-scope",
+  "productName": "cp-scope",
+  "version": "0.0.1",
+  "description": "cp-scope",
+  "main": "./main.prod.js",
+  "author": {
+    "name": "Akane",
+    "email": "arek.klein@gmail.com",
+    "url": "https://github.com/aklein13"
+  },
+  "scripts": {
+    "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
+    "postinstall": "npm run electron-rebuild"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "robotjs": "https://github.com/aklein13/robotjs"
+  }
+}

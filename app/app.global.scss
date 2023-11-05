@@ -1,0 +1,56 @@
+$mainColor: #333;
+$text: white;
+$textLight: #b4b4b4;
+$border: 1px solid $textLight;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 9px;
+}
+
+body {
+  font-family: Arial, Helvetica, Helvetica Neue, serif;
+  position: relative;
+  color: $text;
+  overflow: hidden;
+  background-color: $mainColor;
+  margin: 0;
+}
+
+// Mini bootstrap
+.d-flex {
+  display: flex;
+}
+
+.flex-center {
+  @extend .d-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.mt-2 {
+  margin-top: 6px;
+}
+
+.mt-3 {
+  margin-top: 12px;
+}
+
+.mb-2 {
+  margin-bottom: 6px;
+}
+
+.ml-2 {
+  margin-left: 6px;
+}
+
+.m-0 {
+  margin: 0;
+}

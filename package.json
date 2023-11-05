@@ -1,0 +1,180 @@
+{
+  "name": "cp-scope",
+  "productName": "cp-scope",
+  "version": "0.0.1",
+  "description": "cp-scope",
+  "scripts": {
+    "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
+    "build-dll": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.dev.dll.js --colors",
+    "build-main": "cross-env NODE_ENV=production node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.main.prod.js --colors",
+    "build-renderer": "cross-env NODE_ENV=production node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.prod.js --colors",
+    "dev": "cross-env START_HOT=1 node -r babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 npm run start-renderer-dev",
+    "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
+    "flow": "flow",
+    "flow-typed": "rimraf flow-typed/npm",
+    "package": "npm run build && electron-builder",
+    "package-all": "npm run build && electron-builder -mwl --publish never",
+    "ship-mac": "npm run build && electron-builder -ml --publish always",
+    "ship-win": "npm run build && electron-builder -w --publish always",
+    "package-linux": "npm run build && electron-builder --linux",
+    "package-win": "npm run build && electron-builder --win --x64",
+    "postinstall": "node -r babel-register internals/scripts/CheckNativeDep.js && npm run flow-typed && npm run build-dll && electron-builder install-app-deps && node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
+    "prestart": "npm run build",
+    "start": "cross-env NODE_ENV=production electron ./app/",
+    "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r babel-register ./app/main.dev",
+    "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
+    "clear": "rimraf release"
+  },
+  "build": {
+    "productName": "cp-scope",
+    "appId": "org.aklein13.cp-scope",
+    "npmRebuild": false,
+    "files": [
+      "dist/",
+      "node_modules/",
+      "app.html",
+      "main.prod.js",
+      "main.prod.js.map",
+      "package.json"
+    ],
+    "mac": {
+      "target": {
+        "target": "default",
+        "arch": [
+          "x64"
+        ]
+      },
+      "type": "distribution",
+      "extendInfo": {
+        "LSUIElement": true
+      },
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Development"
+    },
+    "directories": {
+      "buildResources": "resources",
+      "output": "release"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "aklein13",
+        "repo": "cp-scope"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aklein13/cp-scope"
+  },
+  "author": {
+    "name": "Akane",
+    "email": "arek.klein@gmail.com",
+    "url": "https://github.com/aklein13"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aklein13/cp-scope/issues"
+  },
+  "keywords": [
+    "electron",
+    "react",
+    "sass",
+    "webpack"
+  ],
+  "homepage": "https://github.com/aklein13/cp-scope#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-dev-expression": "^0.2.1",
+    "babel-plugin-flow-runtime": "^0.17.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-react-hmre": "^1.1.1",
+    "babel-preset-react-optimize": "^1.0.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "browserslist-config-erb": "^0.0.1",
+    "chalk": "^2.4.1",
+    "concurrently": "^3.6.1",
+    "cross-env": "^5.2.0",
+    "cross-spawn": "^6.0.4",
+    "css-loader": "^3.4.2",
+    "detect-port": "^1.2.2",
+    "electron": "^7.2.4",
+    "electron-builder": "^23.0.3",
+    "electron-rebuild": "^1.10.0",
+    "express": "^4.16.2",
+    "fbjs-scripts": "^0.8.3",
+    "file-loader": "^1.1.11",
+    "flow-bin": "^0.84.0",
+    "flow-runtime": "^0.17.0",
+    "flow-typed": "^2.5.1",
+    "identity-obj-proxy": "^3.0.0",
+    "minimist": "^1.2.3",
+    "node-sass": "^4.14.1",
+    "npm-logical-tree": "^1.2.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "rimraf": "^2.7.1",
+    "sass-loader": "^7.3.1",
+    "style-loader": "^0.20.1",
+    "terser-webpack-plugin": "^2.3.2",
+    "uglifyjs-webpack-plugin": "2.2.0",
+    "url-loader": "^3.0.0",
+    "webpack": "^4.41.5",
+    "webpack-bundle-analyzer": "^3.6.0",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.1",
+    "webpack-merge": "^4.2.2"
+  },
+  "dependencies": {
+    "electron-config": "^1.0.0",
+    "electron-rpc": "^2.0.1",
+    "electron-updater": "^4.2.0",
+    "get-image-colors": "^4.0.1",
+    "history": "^4.7.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-hot-loader": "^4.12.19",
+    "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2",
+    "source-map-support": "^0.5.16"
+  },
+  "resolutions": {
+    "conf": "aklein13/conf#cp-scope-v1.4.0"
+  },
+  "browserslist": [
+    "extends browserslist-config-erb"
+  ],
+  "devEngines": {
+    "node": ">=14.x",
+    "yarn": ">=1.x"
+  }
+}
