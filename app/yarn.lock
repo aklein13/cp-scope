@@ -292,7 +292,7 @@ readable-stream@^3.1.1, readable-stream@^3.4.0:
 
 "robotjs@https://github.com/aklein13/robotjs":
   version "0.6.1"
-  resolved "https://github.com/aklein13/robotjs#66bf4fe6206d25400eed6090f9e68326faf3c18a"
+  resolved "https://github.com/aklein13/robotjs#eaab2544d44843d3b11de760711046ff52cbea10"
   dependencies:
     nan "^2.14.2"
     prebuild-install "^6.1.2"

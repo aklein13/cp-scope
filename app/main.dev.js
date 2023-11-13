@@ -51,10 +51,6 @@ const checkColor = () => {
   let top = 0;
   let bottom = 0;
 
-  // img.colorAt is slow because it creates & destroys a bitmap on each call in C
-  // I should use findAllColorInImage from robot.js C code or somethign else
-  // The bellow code is very slow but works
-
   while (x < screen.width) {
     const color = img.colorAt(x, startY);
     if (color !== startColor) {
@@ -106,7 +102,7 @@ app.on('ready', async () => {
   console.log('App is ready!');
 
   screen = robot.getScreenSize();
-  setInterval(checkColor, 1000);
+  setInterval(checkColor, 100);
 
   // stream.on('data', chunk => {
   //   console.log(chunk);
