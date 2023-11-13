@@ -21,6 +21,23 @@ const trayIcon =
 const server = new Server();
 let screen = null;
 
+const crosshairWindowConfig = {
+  show: false,
+  frame: false,
+  resizable: false,
+  maximizable: false,
+  fullscreenable: false,
+  title: 'cp-scope',
+  center: true,
+  alwaysOnTop: true,
+  skipTaskbar: true,
+  visibleOnAllWorkspaces: true,
+  focusable: false,
+  webPreferences: {
+    nodeIntegration: true,
+  },
+};
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
@@ -36,9 +53,6 @@ if (isDebug) {
 
 const checkColor = () => {
   const img = robot.screen.capture();
-  console.log(img.bytesPerPixel);
-  console.log(img.bitsPerPixel);
-  console.log(img.byteWidth);
   const pos = robot.getMousePos();
   const startX = pos.x;
   const startY = pos.y;
@@ -94,18 +108,17 @@ const checkColor = () => {
     left,
     bottom,
     top,
+    mouse: pos,
   };
-  console.log(result);
+  server.send('coordinates', result);
 };
 
 app.on('ready', async () => {
+  crosshairdWindow = new BrowserWindow(clipboardWindowConfig);
+  mainWindow.loadURL(`file://${__dirname}/app.html`);
+
   console.log('App is ready!');
 
   screen = robot.getScreenSize();
   setInterval(checkColor, 100);
-
-  // stream.on('data', chunk => {
-  //   console.log(chunk);
-  //   getColors(chunk, 'image/jpg').then(colors => console.log(colors));
-  // });
 });
