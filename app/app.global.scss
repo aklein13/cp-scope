@@ -62,8 +62,40 @@ body {
 
   .crosshair {
     position: absolute;
-    width: 100px;
-    height: 100px;
+    width: 1px;
+    height: 1px;
     background-color: red;
+
+    & > div {
+      position: absolute;
+    }
+
+    .left {
+      left: -100px;
+      width: 100px;
+      height: 1px;
+      background-color: blue;
+    }
+
+    .right {
+      right: -100px;
+      width: 100px;
+      height: 1px;
+      background-color: green;
+    }
+
+    .top {
+      top: -100px;
+      width: 1px;
+      height: 100px;
+      background-color: yellow;
+    }
+
+    .bottom {
+      bottom: -100px;
+      width: 1px;
+      height: 100px;
+      background-color: purple;
+    }
   }
 }

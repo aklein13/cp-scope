@@ -27,7 +27,24 @@ export default class Crosshair extends Component {
             left: coordinates.mouse.x,
             top: coordinates.mouse.y,
           }}
-        />
+        >
+          <div
+            className="right"
+            style={{ right: -coordinates.right, width: coordinates.right }}
+          />
+          <div
+            className="left"
+            style={{ left: -coordinates.left, width: coordinates.left }}
+          />
+          <div
+            className="top"
+            style={{ top: -coordinates.top, height: coordinates.top }}
+          />
+          <div
+            className="bottom"
+            style={{ bottom: -coordinates.bottom, height: coordinates.bottom }}
+          />
+        </div>
       </div>
     );
   }
