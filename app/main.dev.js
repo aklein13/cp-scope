@@ -23,8 +23,10 @@ const server = new Server();
 const isMac = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
 const isWindows = process.platform === 'win32';
-let screen = null;
-let crosshairdWindow = null;
+
+let screen;
+let crosshairdWindow;
+let checkColorInterval;
 
 const crosshairWindowConfig = {
   show: false,
@@ -115,6 +117,7 @@ const checkColor = () => {
     top,
     mouse: pos,
   };
+  console.log(result);
   server.send('coordinates', result);
 };
 
@@ -130,8 +133,12 @@ const openWindow = () => {
     crosshairdWindow.setBounds(activeScreenBounds);
   }
   crosshairdWindow.setAlwaysOnTop(true, 'floating', 100);
+
+  // crosshairdWindow.openDevTools();
+
   globalShortcut.unregisterAll();
   globalShortcut.register('Escape', closeWindow);
+  checkColorInterval = setInterval(checkColor, 1000);
   setTimeout(
     () => globalShortcut.register('CommandOrControl + Shift + X', closeWindow),
     500
@@ -139,6 +146,7 @@ const openWindow = () => {
 };
 
 const closeWindow = () => {
+  clearInterval(checkColorInterval);
   if (isMac) {
     app.hide();
   }
@@ -158,9 +166,9 @@ app.on('ready', async () => {
   crosshairdWindow = new BrowserWindow(crosshairWindowConfig);
   crosshairdWindow.loadURL(`file://${__dirname}/app.html`);
   registerInitShortcuts();
+  server.configure(crosshairdWindow.webContents);
 
   console.log('App is ready!');
 
   screen = robot.getScreenSize();
-  // setInterval(checkColor, 100);
 });

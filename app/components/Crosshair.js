@@ -10,17 +10,24 @@ export default class Crosshair extends Component {
 
     this.client = new Client();
     this.client.on('coordinates', (error, body) => {
-      this.coordinates = body;
+      this.setState({ coordinates: body });
     });
   }
 
   render() {
-    // if (!this.coordinates) {
-    //   return <div />;
-    // }
+    const { coordinates } = this.state;
+    if (!coordinates) {
+      return <div />;
+    }
     return (
       <div className="crosshair-container">
-        <div className="crosshair" />
+        <div
+          className="crosshair"
+          style={{
+            left: coordinates.mouse.x,
+            top: coordinates.mouse.y,
+          }}
+        />
       </div>
     );
   }
