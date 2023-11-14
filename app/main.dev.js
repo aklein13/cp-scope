@@ -33,7 +33,7 @@ const crosshairWindowConfig = {
   frame: false,
   resizable: false,
   maximizable: false,
-  fullscreen: true,
+  fullscreenable: false,
   title: 'cp-scope',
   alwaysOnTop: true,
   skipTaskbar: true,
@@ -71,10 +71,11 @@ const checkColor = () => {
   let left = 0;
   let top = 0;
   let bottom = 0;
+  const crossColor = 'ff0000';
 
   while (x < screen.width) {
     const color = img.colorAt(x, startY);
-    if (color !== startColor) {
+    if (color !== startColor && color !== crossColor) {
       break;
     }
     x += 1;
@@ -84,7 +85,7 @@ const checkColor = () => {
 
   while (x > 0) {
     const color = img.colorAt(x, startY);
-    if (color !== startColor) {
+    if (color !== startColor && color !== crossColor) {
       break;
     }
     x -= 1;
@@ -93,7 +94,7 @@ const checkColor = () => {
 
   while (y < screen.height) {
     const color = img.colorAt(startX, y);
-    if (color !== startColor) {
+    if (color !== startColor && color !== crossColor) {
       break;
     }
     y += 1;
@@ -103,7 +104,7 @@ const checkColor = () => {
 
   while (y > 0) {
     const color = img.colorAt(startX, y);
-    if (color !== startColor) {
+    if (color !== startColor && color !== crossColor) {
       break;
     }
     y -= 1;
@@ -117,7 +118,6 @@ const checkColor = () => {
     top,
     mouse: pos,
   };
-  console.log(result);
   server.send('coordinates', result);
 };
 
@@ -138,7 +138,7 @@ const openWindow = () => {
 
   globalShortcut.unregisterAll();
   globalShortcut.register('Escape', closeWindow);
-  checkColorInterval = setInterval(checkColor, 1000);
+  checkColorInterval = setInterval(checkColor, 10);
   setTimeout(
     () => globalShortcut.register('CommandOrControl + Shift + X', closeWindow),
     500
