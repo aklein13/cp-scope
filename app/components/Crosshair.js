@@ -15,9 +15,13 @@ export default class Crosshair extends Component {
   }
 
   render() {
-    if (!this.coordinates) {
-      return <div />;
-    }
-    return <div></div>;
+    // if (!this.coordinates) {
+    //   return <div />;
+    // }
+    return (
+      <div className="crosshair-container">
+        <div className="crosshair" />
+      </div>
+    );
   }
 }
