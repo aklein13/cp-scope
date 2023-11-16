@@ -44,6 +44,10 @@ export default class Crosshair extends Component {
             className="bottom"
             style={{ bottom: -coordinates.bottom, height: coordinates.bottom }}
           />
+          <div className="info">
+            {coordinates.right + coordinates.left} x{' '}
+            {coordinates.top + coordinates.bottom}
+          </div>
         </div>
       </div>
     );
