@@ -133,6 +133,7 @@ const openWindow = () => {
     crosshairdWindow.setBounds(activeScreenBounds);
   }
   crosshairdWindow.setAlwaysOnTop(true, 'floating', 100);
+  crosshairdWindow.setIgnoreMouseEvents(true);
 
   // crosshairdWindow.openDevTools();
 
