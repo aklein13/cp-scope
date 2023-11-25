@@ -7,18 +7,23 @@ import {
   Menu,
   shell,
   nativeImage,
-  clipboard,
   screen as electronScreen,
 } from 'electron';
 import Server from 'electron-rpc/server';
 import path from 'path';
 
 const robot = require('robotjs');
-const fs = require('fs');
 
 const trayIcon =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACW0lEQVR42l2TyWvaQRTHR/ODQi8lqEhB7KEHD3pI0fZQGm8SevAs+Q+8eWpMKaVpLW0vYo6eSreLx9JCECGIkVIwKS49BNz3fd/3fkecjPYHw8y8ee8z3zfv/Qj94vE4qdVqZLFYiJbLJZnP5/cx27F/PhqNdrEns9mM0DObzbaa2+02ufkCgQB1ECOAzg+m02mt0Wj8hNNvBP8dDAZ3ACKTyURMg+kwmUwckEgkqFG8vv0MgR+YY6/XOwf0ZL3f8Xg81EYHB0SjUXq4ko/bL3HTAdZ3MagiG27/6HQ6BazvrW0km81yQCwWYwB6eFWv1w8Auuh2u48Ae9Xv9x248Rlsn9dKBKPRyAHJZHILUCgUniLQXyqVHg+Hw9cIdrRaLStsXxhArVZzQDqd3gLk83kKuCgWi5uAo/F4zAA7KpWKA1Kp1BYgl8utFEAJBZwgldNms3mEt/jKAEqlkgPgyAC0Cpd4oJUC2J+ghG8AcABg3QTI5fL/q8AVZDIZCvABtofeOEZZT9EXVqj5xgASiYQDIpHIJuAPOtMA5zPkbMPL/0CXvgTgGLYbBTKZjANCodBmH1xBtgENs9fpdGII/AWX2wC/RTk/MYBUKuUAl8u1MtJD5PkdN7/Dmra4gPdYdShSOkd/vGAAhULBAYIgkHK5LEbZ6HvsQ8UATofUGSWlgPeQX0Q3yoPBIEGVRDqdjgO8Xi/R6/UsDZrSIWpfhJJrjBR64BopPaxWq6RSqYjMZjPRaDQcQGvKfp5wOCyy2+3EYrHs+nw+g9vt3tdqtbeon9/vFzE/9oj/AOHffdTL+hwRAAAAAElFTkSuQmCC';
 
+const UPDATE_INTERVAL = 3 * 3600 * 1000;
+
+let openAtLogin = false;
+let updateAvailable = false;
+let updateInterval = null;
+
+let tray = null;
 const server = new Server();
 const isMac = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
@@ -57,6 +62,43 @@ if (isDebug) {
   const p = path.join(__dirname, '..', 'app', 'node_modules');
   require('module').globalPaths.push(p);
 }
+
+const connectAutoUpdater = () => {
+  autoUpdater.autoDownload = false;
+  autoUpdater.on('update-available', () => {
+    updateAvailable = true;
+    if (isMac) {
+      const response = dialog.showMessageBoxSync(null, {
+        type: 'info',
+        buttons: ['Close', 'Download'],
+        title: 'cp-scope',
+        detail: 'Update is available to download from GitHub.',
+      });
+      if (response) {
+        shell.openExternal(
+          'https://github.com/aklein13/cp-scope/releases/latest'
+        );
+      }
+    } else {
+      autoUpdater.downloadUpdate();
+    }
+  });
+  autoUpdater.on('update-not-available', () => {
+    updateAvailable = false;
+  });
+  autoUpdater.on('update-downloaded', () => {
+    const response = dialog.showMessageBoxSync(null, {
+      type: 'info',
+      buttons: ['Restart', 'Later'],
+      title: 'Application Update',
+      detail:
+        'A new version has been downloaded.\nRestart the application to apply the updates.',
+    });
+    if (response === 0) {
+      autoUpdater.quitAndInstall();
+    }
+  });
+};
 
 const checkColor = () => {
   const img = robot.screen.capture();
@@ -121,6 +163,70 @@ const checkColor = () => {
   server.send('coordinates', result);
 };
 
+const createTray = () => {
+  if (tray) {
+    tray.destroy();
+  }
+  tray = new Tray(nativeImage.createFromDataURL(trayIcon));
+  let menuTemplate = [
+    {
+      label: 'Check updates',
+      async click() {
+        clearInterval(updateInterval);
+        await autoUpdater.checkForUpdates();
+        if (!isMac) {
+          updateInterval = setInterval(
+            () => autoUpdater.checkForUpdates(),
+            UPDATE_INTERVAL
+          );
+        }
+        if (!updateAvailable) {
+          dialog.showMessageBox({
+            type: 'info',
+            buttons: ['Close'],
+            title: 'cp-scope',
+            detail: `There are currently no updates available.\nYour version ${app.getVersion()} is the latest one.`,
+          });
+        }
+      },
+    },
+    {
+      label: 'GitHub',
+      click() {
+        shell.openExternal('https://github.com/aklein13/cp-scope');
+      },
+    },
+    {
+      type: 'separator',
+    },
+    {
+      label: 'Quit',
+      click() {
+        crosshairdWindow.removeAllListeners();
+        app.quit();
+      },
+    },
+  ];
+  if (!isLinux) {
+    openAtLogin = app.getLoginItemSettings().openAtLogin;
+    menuTemplate.unshift({
+      label: 'Autostart',
+      type: 'checkbox',
+      checked: openAtLogin,
+      click() {
+        openAtLogin = !openAtLogin;
+        app.setLoginItemSettings({
+          ...app.getLoginItemSettings(),
+          openAtLogin,
+        });
+      },
+    });
+  }
+  const contextMenu = Menu.buildFromTemplate(menuTemplate);
+  tray.setToolTip('cp-scope');
+  tray.setContextMenu(contextMenu);
+};
+
 const openWindow = () => {
   const activeScreen = electronScreen.getDisplayNearestPoint(
     electronScreen.getCursorScreenPoint()
@@ -164,12 +270,26 @@ const registerInitShortcuts = () => {
 };
 
 app.on('ready', async () => {
+  if (!isDebug) {
+    connectAutoUpdater();
+  }
+
   crosshairdWindow = new BrowserWindow(crosshairWindowConfig);
   crosshairdWindow.loadURL(`file://${__dirname}/app.html`);
   registerInitShortcuts();
   server.configure(crosshairdWindow.webContents);
+  screen = robot.getScreenSize();
+  createTray();
 
   console.log('App is ready!');
 
-  screen = robot.getScreenSize();
+  // Exclude Mac because I need paid $$$ developer account to sign the app...
+  // Updates do not work for unsigned applications.
+  if (!isDebug && !isMac) {
+    await autoUpdater.checkForUpdates();
+    updateInterval = setInterval(
+      () => autoUpdater.checkForUpdates(),
+      UPDATE_INTERVAL
+    );
+  }
 });
