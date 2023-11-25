@@ -1,7 +1,6 @@
 $mainColor: #333;
 $text: white;
-$textLight: #b4b4b4;
-$border: 1px solid $textLight;
+$crosshairColor: #ff0000;
 
 * {
   box-sizing: border-box;
@@ -67,17 +66,40 @@ body {
 
     & > div {
       position: absolute;
-      background-color: #ff0000;
+      background-color: $crosshairColor;
+    }
+
+    .end {
+      position: absolute;
+      background-color: $crosshairColor;
     }
 
     .left,
     .right {
       height: 1px;
+
+      .end {
+        height: 5px;
+        width: 1px;
+        top: -2px;
+      }
     }
 
     .top,
     .bottom {
       width: 1px;
+
+      .end {
+        height: 1px;
+        width: 5px;
+        left: -2px;
+      }
+    }
+
+    @each $position in [ 'top', 'bottom', 'left', 'right' ] {
+      .#{$position} .end {
+        #{$position}: 0;
+      }
     }
 
     .info {
@@ -87,8 +109,8 @@ body {
       left: 0;
       margin-left: 10px;
       background-color: rgba(51, 51, 51, 0.6);
-      border: 1px solid white;
-      color: white;
+      border: 1px solid $text;
+      color: $text;
       border-radius: 6px;
       padding: 6px 4px;
       white-space: nowrap;

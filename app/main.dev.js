@@ -33,6 +33,9 @@ let screen;
 let crosshairdWindow;
 let checkColorInterval;
 
+// Minimal gap: 5px
+const checkOffsets = [-2, 1, 0, 1, 2];
+
 const crosshairWindowConfig = {
   show: false,
   frame: false,
@@ -100,12 +103,24 @@ const connectAutoUpdater = () => {
   });
 };
 
+const checkImgColors = (img, startColor, x, y, crossColor, shouldOffsetX) => {
+  return checkOffsets.every(offset => {
+    const color = img.colorAt(
+      shouldOffsetX ? x + offset : x,
+      shouldOffsetX ? y : y + offset
+    );
+    return color === startColor || color === crossColor;
+  });
+};
+
 const checkColor = () => {
   const img = robot.screen.capture();
   const pos = robot.getMousePos();
   const startX = pos.x;
   const startY = pos.y;
   const startColor = img.colorAt(startX, startY);
+  // TODO Make it not take same as bg
+  const crossColor = 'ff0000';
 
   let x = startX + 1;
   let y = startY + 1;
@@ -113,11 +128,9 @@ const checkColor = () => {
   let left = 0;
   let top = 0;
   let bottom = 0;
-  const crossColor = 'ff0000';
 
   while (x < screen.width) {
-    const color = img.colorAt(x, startY);
-    if (color !== startColor && color !== crossColor) {
+    if (!checkImgColors(img, startColor, x, startY, crossColor, false)) {
       break;
     }
     x += 1;
@@ -126,8 +139,7 @@ const checkColor = () => {
   x = startX - 1;
 
   while (x > 0) {
-    const color = img.colorAt(x, startY);
-    if (color !== startColor && color !== crossColor) {
+    if (!checkImgColors(img, startColor, x, startY, crossColor, false)) {
       break;
     }
     x -= 1;
@@ -135,8 +147,7 @@ const checkColor = () => {
   }
 
   while (y < screen.height) {
-    const color = img.colorAt(startX, y);
-    if (color !== startColor && color !== crossColor) {
+    if (!checkImgColors(img, startColor, startX, y, crossColor, true)) {
       break;
     }
     y += 1;
@@ -145,8 +156,7 @@ const checkColor = () => {
   y = startY - 1;
 
   while (y > 0) {
-    const color = img.colorAt(startX, y);
-    if (color !== startColor && color !== crossColor) {
+    if (!checkImgColors(img, startColor, startX, y, crossColor, true)) {
       break;
     }
     y -= 1;
