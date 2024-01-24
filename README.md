@@ -1,8 +1,8 @@
 # cp-scope
 
-Electron xScope-like application.
+Electron xScope-like application. It measures pixel distance between objects in any application.
 
-![App](./docs/app.gif)
+![App](./docs/app.jpg)
 
 # Shortcuts
 
@@ -10,6 +10,7 @@ Electron xScope-like application.
 - `Escape` = Close
 
 # TODO
+
 - Support multiple monitors
 - Support color gradient check (skip small differences)
 - Fix wierd behaviour on Mac
