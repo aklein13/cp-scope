@@ -114,8 +114,15 @@ const checkImgColors = (img, startColor, x, y, crossColor, shouldOffsetX) => {
 };
 
 const checkColor = () => {
-  const img = robot.screen.capture();
   const pos = robot.getMousePos();
+  const activeScreen = electronScreen.getDisplayNearestPoint(pos);
+  const { bounds } = activeScreen;
+  const img = robot.screen.capture(
+    bounds.x,
+    bounds.y,
+    bounds.width,
+    bounds.height
+  );
   const startX = pos.x;
   const startY = pos.y;
   const startColor = img.colorAt(startX, startY);
