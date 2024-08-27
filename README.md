@@ -11,6 +11,5 @@ Electron xScope-like application. It measures pixel distance between objects in 
 
 # TODO
 
-- Support multiple monitors
 - Support color gradient check (skip small differences)
 - Fix wierd behaviour on Mac
