@@ -189,7 +189,6 @@ const checkColor = () => {
     top,
     mouse: pos,
   };
-  console.log(result);
   server.send('coordinates', result);
 };
 
