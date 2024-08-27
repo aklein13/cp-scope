@@ -7,7 +7,7 @@ import {
   Menu,
   shell,
   nativeImage,
-  screen as electronScreen,
+  screen,
 } from 'electron';
 import Server from 'electron-rpc/server';
 import path from 'path';
@@ -29,7 +29,7 @@ const isMac = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
 const isWindows = process.platform === 'win32';
 
-let screen;
+let activeScreen;
 let crosshairdWindow;
 let checkColorInterval;
 
@@ -48,6 +48,7 @@ const crosshairWindowConfig = {
   visibleOnAllWorkspaces: true,
   focusable: false,
   transparent: true,
+  hasShadow: false,
   webPreferences: {
     nodeIntegration: true,
   },
@@ -105,17 +106,35 @@ const connectAutoUpdater = () => {
 
 const checkImgColors = (img, startColor, x, y, crossColor, shouldOffsetX) => {
   return checkOffsets.every(offset => {
-    const color = img.colorAt(
-      shouldOffsetX ? x + offset : x,
-      shouldOffsetX ? y : y + offset
-    );
+    let color;
+    try {
+      color = img.colorAt(
+        shouldOffsetX ? x + offset : x,
+        shouldOffsetX ? y : y + offset,
+      );
+    } catch (e) {
+      return false;
+    }
     return color === startColor || color === crossColor;
   });
 };
 
 const checkColor = () => {
-  const img = robot.screen.capture();
   const pos = robot.getMousePos();
+  const newActiveScreen = screen.getDisplayNearestPoint(pos);
+  const { bounds } = newActiveScreen;
+  if (activeScreen && newActiveScreen.id !== activeScreen.id) {
+    crosshairdWindow.setBounds(bounds);
+  }
+  activeScreen = newActiveScreen;
+  const img = robot.screen.capture(
+    bounds.x,
+    bounds.y,
+    bounds.width,
+    bounds.height
+  );
+  pos.x -= bounds.x;
+  pos.y -= bounds.y;
   const startX = pos.x;
   const startY = pos.y;
   const startColor = img.colorAt(startX, startY);
@@ -129,7 +148,7 @@ const checkColor = () => {
   let top = 0;
   let bottom = 0;
 
-  while (x < screen.width) {
+  while (x < bounds.width) {
     if (!checkImgColors(img, startColor, x, startY, crossColor, false)) {
       break;
     }
@@ -146,7 +165,7 @@ const checkColor = () => {
     left += 1;
   }
 
-  while (y < screen.height) {
+  while (y < bounds.height) {
     if (!checkImgColors(img, startColor, startX, y, crossColor, true)) {
       break;
     }
@@ -238,8 +257,8 @@ const createTray = () => {
 };
 
 const openWindow = () => {
-  const activeScreen = electronScreen.getDisplayNearestPoint(
-    electronScreen.getCursorScreenPoint()
+  const activeScreen = screen.getDisplayNearestPoint(
+    screen.getCursorScreenPoint()
   );
   const activeScreenBounds = activeScreen.bounds;
   crosshairdWindow.setBounds(activeScreenBounds);
@@ -272,6 +291,7 @@ const closeWindow = () => {
     crosshairdWindow.minimize();
   }
   crosshairdWindow.hide();
+  activeScreen = null;
   setTimeout(registerInitShortcuts, 500);
 };
 
@@ -288,7 +308,6 @@ app.on('ready', async () => {
   crosshairdWindow.loadURL(`file://${__dirname}/app.html`);
   registerInitShortcuts();
   server.configure(crosshairdWindow.webContents);
-  screen = robot.getScreenSize();
   createTray();
 
   console.log('App is ready!');
