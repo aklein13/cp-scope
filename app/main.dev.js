@@ -106,10 +106,15 @@ const connectAutoUpdater = () => {
 
 const checkImgColors = (img, startColor, x, y, crossColor, shouldOffsetX) => {
   return checkOffsets.every(offset => {
-    const color = img.colorAt(
-      shouldOffsetX ? x + offset : x,
-      shouldOffsetX ? y : y + offset
-    );
+    let color;
+    try {
+      color = img.colorAt(
+        shouldOffsetX ? x + offset : x,
+        shouldOffsetX ? y : y + offset,
+      );
+    } catch (e) {
+      return false;
+    }
     return color === startColor || color === crossColor;
   });
 };
