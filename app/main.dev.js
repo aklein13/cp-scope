@@ -9,6 +9,7 @@ import {
   nativeImage,
   screen,
 } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import Server from 'electron-rpc/server';
 import path from 'path';
 

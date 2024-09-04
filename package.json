@@ -149,9 +149,8 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "electron-config": "^1.0.0",
     "electron-rpc": "^2.0.1",
-    "electron-updater": "^4.2.0",
+    "electron-updater": "4.3.1",
     "history": "^4.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -159,9 +158,6 @@
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "source-map-support": "^0.5.16"
-  },
-  "resolutions": {
-    "conf": "aklein13/conf#cp-scope-v1.4.0"
   },
   "browserslist": [
     "extends browserslist-config-erb"
